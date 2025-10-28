@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guía práctica de Git & GitHub</title>
+  <style>
+    :root {
+      --bg: #0f172a;          /* slate-900 */
+      --panel: #111827;       /* gray-900 */
+      --muted: #9ca3af;       /* gray-400 */
+      --text: #e5e7eb;        /* gray-200 */
+      --brand: #22d3ee;       /* cyan-400 */
+      --accent: #a78bfa;      /* violet-400 */
+      --ok: #34d399;          /* emerald-400 */
+      --warn: #fbbf24;        /* amber-400 */
+      --danger: #fb7185;      /* rose-400 */
+      --code: #0b1220;        /* dark panel */
+      --border: #1f2937;      /* gray-800 */
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .layout{display:grid;grid-template-columns:300px 1fr;min-height:100%}
+    nav{position:sticky;top:0;height:100vh;overflow:auto;background:var(--panel);border-right:1px solid var(--border);padding:20px}
+    nav h2{margin:0 0 12px 0;font-size:18px;color:var(--brand)}
+    nav .search{display:flex;gap:8px}
+    nav input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:#0b1220;color:var(--text)}
+    nav ul{list-style:none;padding:0;margin:16px 0 0 0;display:flex;flex-direction:column;gap:8px}
+    nav li{font-size:14px}
+    nav .small{color:var(--muted);font-size:12px}
+
+    header{padding:32px 32px 8px;border-bottom:1px solid var(--border)}
+    header h1{margin:0;font-size:28px}
+    header p{margin:8px 0 0;color:var(--muted)}
+
+    main{padding:24px;display:flex;flex-direction:column;gap:24px}
+    section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px}
+    section h3{margin:0 0 10px 0;font-size:20px;color:#fff}
+    section .lead{color:var(--muted);margin:0 0 12px}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+    .card{background:#0b1220;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .tag{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px;color:var(--muted)}
+
+    pre{margin:0;position:relative;background:var(--code);border:1px solid var(--border);border-radius:12px;overflow:auto}
+    code{display:block;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:13px;line-height:1.5;color:#e2e8f0}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{padding:8px 12px;border:1px solid var(--border);background:#0b1220;color:#e5e7eb;border-radius:10px;cursor:pointer}
+    .btn:hover{border-color:#334155}
+    .copy{position:absolute;top:8px;right:8px}
+    .kbd{border:1px solid var(--border);border-bottom-width:2px;border-radius:8px;padding:2px 6px;font-family:inherit;font-size:12px;color:var(--muted)}
+
+    .callout{border-left:4px solid var(--accent);background:rgba(167,139,250,.08);padding:12px 16px;border-radius:10px}
+    .ok{border-left-color:var(--ok);background:rgba(52,211,153,.08)}
+    .warn{border-left-color:var(--warn);background:rgba(251,191,36,.08)}
+    .danger{border-left-color:var(--danger);background:rgba(251,113,133,.08)}
+
+    footer{color:var(--muted);text-align:center;padding:40px}
+
+    /* Responsive: stack nav */
+    @media (max-width: 900px){
+      .layout{grid-template-columns:1fr}
+      nav{position:relative;height:auto}
+    }
+  </style>
+</head>
+<body>
+  <!--
+    Esta página está pensada para PRACTICAR Git y GitHub.
+    Incluye secciones con comandos y ejercicios. Puedes usarla como guía rápida.
+    ⚙ Cómo usar: Lee la intro, sigue los ejercicios por secciones y copia comandos con el botón.
+  -->
+  <div class="layout">
+    <nav>
+      <h2>Contenido</h2>
+      <div class="search">
+        <input id="filter" type="search" placeholder="Buscar secciones o comandos…" />
+      </div>
+      <ul id="toc">
+        <!-- El índice se genera automáticamente con JS leyendo data-title de cada sección -->
+      </ul>
+      <p class="small">Consejo: presiona <span class="kbd">Ctrl</span> + <span class="kbd">F</span> para buscar texto en la página.</p>
+    </nav>
+
+    <div>
+      <header>
+        <h1>Guía práctica de Git & GitHub</h1>
+        <p>Una sola página informativa con apartados esenciales, comandos comentados y ejercicios sugeridos para dominar el flujo de trabajo.</p>
+      </header>
+
+      <main>
+        <!-- Introducción -->
+        <section id="intro" data-title="Introducción">
+          <h3>Introducción</h3>
+          <p class="lead">Git es un sistema de control de versiones; GitHub es una plataforma para alojar repositorios y colaborar. Aquí verás lo mínimo necesario para trabajar día a día.</p>
+          <div class="grid">
+            <div class="card">
+              <strong>Objetivo</strong>
+              <ul>
+                <li>Comprender el flujo básico de <em>add → commit → push → PR</em>.</li>
+                <li>Practicar ramas, conflictos y colaboración.</li>
+                <li>Aprender buenas prácticas y atajos.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <strong>Requisitos</strong>
+              <ul>
+                <li>Git instalado (Windows/Mac/Linux).</li>
+                <li>Cuenta en GitHub y acceso por HTTPS o SSH.</li>
+                <li>Editor de texto (VS Code recomendado).</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Instalación & Configuración -->
+        <section id="setup" data-title="Instalación y configuración">
+          <h3>Instalación & configuración</h3>
+          <p class="lead">Configura tu identidad y autenticación. Esto se hace una vez por equipo/usuario.</p>
+
+          <div class="row">
+            <div style="flex:1 1 360px">
+              <div class="callout ok"><strong>Config inicial</strong>: nombre y correo usados en tus commits.</div>
+              <pre><button class="btn copy" data-copy="git config --global user.name \"Tu Nombre\"&#10;git config --global user.email \"tu@correo.com\"">Copiar</button><code>git config --global user.name "Tu Nombre"
+git config --global user.email "tu@correo.com"</code></pre>
+
+              <div class="callout"><strong>Autenticación</strong>: HTTPS (token) o SSH (llave pública). <!--
+                HTTPS es sencillo pero pide token al push. SSH evita escribir credenciales cada vez.
+              --></div>
+              <pre><button class="btn copy" data-copy="ssh-keygen -t ed25519 -C \"tu@correo.com\"&#10;# Luego agrega ~/.ssh/id_ed25519.pub a GitHub&#10;ssh -T git@github.com">Copiar</button><code>ssh-keygen -t ed25519 -C "tu@correo.com"
+# Luego agrega ~/.ssh/id_ed25519.pub a GitHub
+ssh -T git@github.com</code></pre>
+            </div>
+
+            <div style="flex:1 1 360px">
+              <div class="callout warn"><strong>Editor por defecto</strong>: recomendado VS Code.</div>
+              <pre><button class="btn copy" data-copy="git config --global core.editor \"code --wait\"">Copiar</button><code>git config --global core.editor "code --wait"</code></pre>
+
+              <div class="callout"><strong>Alias útiles</strong> <!--
+                Los alias acortan comandos largos y ayudan en el día a día.
+              --></div>
+              <pre><button class="btn copy" data-copy="git config --global alias.co checkout&#10;git config --global alias.br branch&#10;git config --global alias.st status&#10;git config --global alias.lg \"log --oneline --graph --decorate --all\"">Copiar</button><code>git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.st status
+git config --global alias.lg "log --oneline --graph --decorate --all"</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Crear repo y flujo básico -->
+        <section id="workflow" data-title="Flujo básico: clonar, cambiar, subir">
+          <h3>Flujo básico</h3>
+          <p class="lead">Clona un repo, crea cambios, confirma y súbelos a GitHub.</p>
+          <div class="grid">
+            <div class="card">
+              <strong>Clonar un repositorio existente</strong>
+              <pre><button class="btn copy" data-copy="git clone URL_DEL_REPO&#10;cd nombre-del-repo">Copiar</button><code>git clone URL_DEL_REPO
+cd nombre-del-repo</code></pre>
+            </div>
+            <div class="card">
+              <strong>Crear repo desde cero</strong>
+              <pre><button class="btn copy" data-copy="mkdir mi-proyecto && cd mi-proyecto&#10;git init&#10;echo \"# Mi Proyecto\" > README.md&#10;git add .&#10;git commit -m \"init: primer commit\"">Copiar</button><code>mkdir mi-proyecto && cd mi-proyecto
+git init
+echo "# Mi Proyecto" > README.md
+git add .
+git commit -m "init: primer commit"</code></pre>
+            </div>
+            <div class="card">
+              <strong>Vincular a remoto y subir</strong>
+              <pre><button class="btn copy" data-copy="git remote add origin git@github.com:usuario/mi-proyecto.git&#10;git branch -M main&#10;git push -u origin main">Copiar</button><code>git remote add origin git@github.com:usuario/mi-proyecto.git
+git branch -M main
+git push -u origin main</code></pre>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="card" style="flex:1 1 360px">
+              <strong>Ciclo diario</strong>
+              <pre><button class="btn copy" data-copy="git status&#10;git add archivo.ext&#10;git commit -m \"feat: describe el cambio\"&#10;git pull --rebase&#10;git push">Copiar</button><code>git status
+git add archivo.ext
+git commit -m "feat: describe el cambio"
+git pull --rebase
+git push</code></pre>
+              <p class="small">Usa mensajes tipo <code>feat:</code>, <code>fix:</code>, <code>docs:</code>, <code>refactor:</code>.</p>
+            </div>
+            <div class="card" style="flex:1 1 360px">
+              <strong>.gitignore básico</strong>
+              <pre><button class="btn copy" data-copy="# Node&#10;node_modules/&#10;.env&#10;dist/&#10;# IDE&#10;.vscode/&#10;.idea/">Copiar</button><code># Node
+node_modules/
+.env
+dist/
+# IDE
+.vscode/
+.idea/</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Ramas y PRs -->
+        <section id="branches" data-title="Ramas y Pull Requests">
+          <h3>Ramas & Pull Requests</h3>
+          <p class="lead">Trabaja aislado en una rama y propone cambios mediante Pull Requests (PR).</p>
+          <div class="grid">
+            <div class="card">
+              <strong>Crear y cambiar de rama</strong>
+              <pre><button class="btn copy" data-copy="git checkout -b feature/nueva-funcion&#10;# trabajar...&#10;git push -u origin feature/nueva-funcion">Copiar</button><code>git checkout -b feature/nueva-funcion
+# trabajar...
+git push -u origin feature/nueva-funcion</code></pre>
+            </div>
+            <div class="card">
+              <strong>Actualizar tu rama con main</strong>
+              <pre><button class="btn copy" data-copy="git checkout feature/nueva-funcion&#10;git fetch origin&#10;git rebase origin/main">Copiar</button><code>git checkout feature/nueva-funcion
+git fetch origin
+git rebase origin/main</code></pre>
+            </div>
+            <div class="card">
+              <strong>Crear el PR en GitHub</strong>
+              <p class="small">Sube tu rama y abre un PR en la web. Asigna revisores, describe el cambio y referencia issues con <code>#123</code>.</p>
+            </div>
+          </div>
+          <div class="callout">Consejo: activa la opción “<em>Require PR reviews</em>” y “<em>Squash merge</em>” en la configuración del repositorio para mantener un historial limpio.</div>
+        </section>
+
+        <!-- Conflictos y resolución -->
+        <section id="conflicts" data-title="Conflictos y resolución">
+          <h3>Conflictos</h3>
+          <p class="lead">Cuando dos cambios tocan la misma línea, Git pide intervención manual.</p>
+          <div class="grid">
+            <div class="card">
+              <strong>Señales de conflicto</strong>
+              <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+Tu cambio
+=======
+Cambio remoto
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; origin/main</code></pre>
+            </div>
+            <div class="card">
+              <strong>Pasos típicos</strong>
+              <ol>
+                <li>Edita el archivo y resuelve los marcadores.</li>
+                <li><code>git add archivo</code></li>
+                <li>Si estás en rebase: <code>git rebase --continue</code></li>
+                <li>Si estás en merge: <code>git commit</code></li>
+              </ol>
+            </div>
+            <div class="card">
+              <strong>Cancelar operación</strong>
+              <pre><button class="btn copy" data-copy="git merge --abort&#10;git rebase --abort">Copiar</button><code>git merge --abort
+git rebase --abort</code></pre>
+            </div>
+          </div>
+          <div class="callout danger"><strong>Tip</strong>: Evita conflictos frecuentes actualizando tu rama con <code>rebase</code> antes de subir cambios.</div>
+        </section>
+
+        <!-- Reescritura, revertir, stash -->
+        <section id="history" data-title="Historial: revert, reset, stash, tags">
+          <h3>Historial & utilidades</h3>
+          <div class="grid">
+            <div class="card">
+              <strong>Deshacer con seguridad</strong>
+              <pre><button class="btn copy" data-copy="git revert &lt;hash&gt;">Copiar</button><code>git revert &lt;hash&gt;</code></pre>
+              <p class="small">Crea un commit inverso (recomendado en main).</p>
+            </div>
+            <div class="card">
+              <strong>Reset (re-escribe)</strong>
+              <pre><button class="btn copy" data-copy="git reset --hard &lt;hash&gt;">Copiar</button><code>git reset --hard &lt;hash&gt;</code></pre>
+              <p class="small">⚠ Reescribe el historial local. Úsalo con cuidado.</p>
+            </div>
+            <div class="card">
+              <strong>Stash (guarda cambios sueltos)</strong>
+              <pre><button class="btn copy" data-copy="git stash push -m \"wip: en progreso\"&#10;git stash list&#10;git stash pop">Copiar</button><code>git stash push -m "wip: en progreso"
+git stash list
+git stash pop</code></pre>
+            </div>
+            <div class="card">
+              <strong>Tags & versiones</strong>
+              <pre><button class="btn copy" data-copy="git tag -a v1.0.0 -m \"primera versión\"&#10;git push origin v1.0.0">Copiar</button><code>git tag -a v1.0.0 -m "primera versión"
+git push origin v1.0.0</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Markdown y README -->
+        <section id="markdown" data-title="Markdown, README y documentación">
+          <h3>Markdown, README & docs</h3>
+          <div class="grid">
+            <div class="card">
+              <strong>README.md mínimo</strong>
+              <pre><button class="btn copy" data-copy="# Mi Proyecto&#10;&#10;Descripción corta.&#10;&#10;## Instalación&#10;```bash&#10;npm i&#10;```&#10;&#10;## Uso&#10;```bash&#10;npm run start&#10;```">Copiar</button><code># Mi Proyecto
+
+Descripción corta.
+
+## Instalación
+```bash
+npm i
+```
+
+## Uso
+```bash
+npm run start
+```</code></pre>
+            </div>
+            <div class="card">
+              <strong>Checklist del PR</strong>
+              <ul>
+                <li>[ ] Descripción del cambio</li>
+                <li>[ ] Evidencia (capturas / logs)</li>
+                <li>[ ] Pruebas pasan</li>
+                <li>[ ] Issue referenciado</li>
+              </ul>
+            </div>
+            <div class="card">
+              <strong>Convenciones de commits</strong>
+              <p class="small">Usa prefijos: <code>feat</code>, <code>fix</code>, <code>chore</code>, <code>docs</code>, <code>test</code>, <code>refactor</code>.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Colaboración, forks, remotos -->
+        <section id="collab" data-title="Colaboración: remotos, forks, upstream">
+          <h3>Colaboración</h3>
+          <div class="grid">
+            <div class="card">
+              <strong>Agregar remotos</strong>
+              <pre><button class="btn copy" data-copy="git remote -v&#10;git remote add upstream git@github.com:ORG/REPO.git">Copiar</button><code>git remote -v
+git remote add upstream git@github.com:ORG/REPO.git</code></pre>
+              <p class="small">Usa <code>upstream</code> para el repo base de un fork.</p>
+            </div>
+            <div class="card">
+              <strong>Sincronizar fork</strong>
+              <pre><button class="btn copy" data-copy="git fetch upstream&#10;git checkout main&#10;git merge upstream/main&#10;git push">Copiar</button><code>git fetch upstream
+git checkout main
+git merge upstream/main
+git push</code></pre>
+            </div>
+            <div class="card">
+              <strong>Issues & Projects</strong>
+              <p class="small">Crea issues claros (repro, esperado vs actual) y organiza con etiquetas y tableros.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Seguridad y tokens -->
+        <section id="security" data-title="Seguridad: tokens, HTTPS/SSH">
+          <h3>Seguridad</h3>
+          <div class="grid">
+            <div class="card">
+              <strong>Personal Access Token (HTTPS)</strong>
+              <p class="small">Crea un token, guarda en tu gestor y úsalo cuando Git pida contraseña.</p>
+            </div>
+            <div class="card">
+              <strong>SSH (recomendado)</strong>
+              <p class="small">Configura tu llave, agrégala a GitHub y evita pedir credenciales en cada push.</p>
+            </div>
+            <div class="card">
+              <strong>Evita exponer secretos</strong>
+              <ul>
+                <li>Usa <code>.env</code> en <code>.gitignore</code>.</li>
+                <li>Revisa antes de subir (<code>git status</code>).</li>
+                <li>Si se filtró: revoca el token y rota la credencial.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- GitHub Actions (intro) -->
+        <section id="actions" data-title="CI/CD con GitHub Actions (intro)">
+          <h3>GitHub Actions (intro)</h3>
+          <p class="lead">Automatiza pruebas y despliegues con flujos YAML.</p>
+          <pre><button class="btn copy" data-copy="name: CI&#10;on: [push, pull_request]&#10;jobs:&#10;  build:&#10;    runs-on: ubuntu-latest&#10;    steps:&#10;      - uses: actions/checkout@v4&#10;      - uses: actions/setup-node@v4&#10;        with: { node-version: '20' }&#10;      - run: npm ci&#10;      - run: npm test">Copiar</button><code>name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm test</code></pre>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section id="troubleshooting" data-title="Problemas comunes (FAQ)">
+          <h3>Problemas comunes</h3>
+          <div class="grid">
+            <div class="card">
+              <strong>“fatal: not a git repository”</strong>
+              <p class="small">Ejecuta <code>git init</code> o muévete a la carpeta correcta.</p>
+            </div>
+            <div class="card">
+              <strong>“rejected” al hacer push</strong>
+              <p class="small">Trae cambios primero: <code>git pull --rebase</code> y vuelve a intentar.</p>
+            </div>
+            <div class="card">
+              <strong>Olvidé archivos en el último commit</strong>
+              <pre><button class="btn copy" data-copy="git add archivo&#10;git commit --amend --no-edit">Copiar</button><code>git add archivo
+git commit --amend --no-edit</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Ejercicios guiados -->
+        <section id="exercises" data-title="Ejercicios prácticos guiados">
+          <h3>Ejercicios prácticos</h3>
+          <ol>
+            <li>Crea un repositorio local con README y súbelo a GitHub (rama <code>main</code>).</li>
+            <li>Crea una rama <code>feature/biografia</code>, añade un archivo y abre un PR.</li>
+            <li>Simula un conflicto editando la misma línea en <code>main</code> y en tu rama; resuélvelo.</li>
+            <li>Agrega un <code>.gitignore</code> y verifica que <code>node_modules/</code> no se suba.</li>
+            <li>Usa <code>git revert</code> para deshacer un commit en <code>main</code>.</li>
+            <li>Configura una acción de CI que ejecute pruebas en cada PR.</li>
+          </ol>
+        </section>
+
+        <!-- Glosario y recursos -->
+        <section id="glossary" data-title="Glosario & recursos">
+          <h3>Glosario & recursos</h3>
+          <div class="grid">
+            <div class="card">
+              <strong>Glosario</strong>
+              <ul>
+                <li><em>Commit</em>: paquete de cambios con mensaje.</li>
+                <li><em>Branch</em>: línea de trabajo paralela.</li>
+                <li><em>Merge/Rebase</em>: integra cambios entre ramas.</li>
+                <li><em>Remote</em>: URL del repositorio en servidor.</li>
+                <li><em>PR</em>: solicitud de cambios para revisión.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <strong>Recursos</strong>
+              <ul>
+                <li>Pro Git (libro)</li>
+                <li>GitHub Docs</li>
+                <li>Try Git (interactivo)</li>
+              </ul>
+              <p class="small">Busca los nombres anteriores en tu navegador para el material oficial.</p>
+            </div>
+          </div>
+        </section>
+
+        <footer>
+          Hecho para practicar Git & GitHub · Personaliza esta guía según tus proyectos.
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Genera el índice a partir de las secciones
+    const toc = document.getElementById('toc');
+    const sections = [...document.querySelectorAll('main section')];
+    sections.forEach(sec => {
+      const id = sec.id;
+      const title = sec.getAttribute('data-title') || sec.querySelector('h3')?.textContent || id;
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${id}`;
+      a.textContent = title;
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+
+    // Filtro de navegación
+    const filter = document.getElementById('filter');
+    filter.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      toc.querySelectorAll('li').forEach(li => {
+        li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+
+    // Copiar al portapapeles
+    document.querySelectorAll('button.copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const text = btn.dataset.copy.replaceAll('\\n', '\n');
+        try {
+          await navigator.clipboard.writeText(text);
+          const old = btn.textContent;
+          btn.textContent = 'Copiado!';
+          setTimeout(()=>btn.textContent = old, 1200);
+        } catch (e) {
+          alert('No se pudo copiar automáticamente. Selecciona y copia manualmente.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
